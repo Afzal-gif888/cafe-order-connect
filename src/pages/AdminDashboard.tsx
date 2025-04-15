@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useCafe } from '@/context/CafeContext';
 import { MenuItem } from '@/types';
-import { ShoppingCart, Users, Coffee, AlertCircle, CheckCircle, PlusCircle, Pencil, Trash2 } from 'lucide-react';
+import { ShoppingCart, Coffee, AlertCircle, CheckCircle, PlusCircle, Pencil, Trash2 } from 'lucide-react';
 
 const AdminDashboard: React.FC = () => {
   const { menuItems, orders } = useCafe();
@@ -103,7 +103,6 @@ const AdminDashboard: React.FC = () => {
           <TabsList className="mb-4">
             <TabsTrigger value="menu">Menu Management</TabsTrigger>
             <TabsTrigger value="orders">Order History</TabsTrigger>
-            <TabsTrigger value="users">User Management</TabsTrigger>
           </TabsList>
           
           <TabsContent value="menu" className="mt-0">
@@ -264,30 +263,6 @@ const AdminDashboard: React.FC = () => {
                       )}
                     </TableBody>
                   </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="users" className="mt-0">
-            <Card className="pt-6">
-              <CardHeader>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>
-                  Manage cafeteria staff and student accounts
-                </CardDescription>
-              </CardHeader>
-              
-              <CardContent>
-                <div className="flex items-center justify-center py-16">
-                  <div className="text-center">
-                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-medium mb-2">User Management</h3>
-                    <p className="text-muted-foreground max-w-md mb-4">
-                      This feature would allow adding, editing, and removing cafeteria staff and managing student accounts.
-                    </p>
-                    <Button disabled>Coming Soon</Button>
-                  </div>
                 </div>
               </CardContent>
             </Card>
