@@ -2,13 +2,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TabsContent } from '@/components/ui/tabs';
 import { UserRole } from '@/types';
-import { User, ShieldCheck } from 'lucide-react';
+import LoginHeader from '@/components/auth/LoginHeader';
+import LoginTabs from '@/components/auth/LoginTabs';
+import ClientLoginForm from '@/components/auth/ClientLoginForm';
+import AdminLoginForm from '@/components/auth/AdminLoginForm';
+import DemoInstructions from '@/components/auth/DemoInstructions';
 
 const Login: React.FC = () => {
   const { login, loading } = useAuth();
@@ -79,81 +81,26 @@ const Login: React.FC = () => {
         </div>
         
         <Card>
-          <CardHeader>
-            <CardTitle>Login</CardTitle>
-            <CardDescription>
-              Choose your role to access the system
-            </CardDescription>
-          </CardHeader>
+          <LoginHeader />
           
-          <Tabs defaultValue="client" onValueChange={(value) => setActiveTab(value as UserRole)}>
-            <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="client" className="flex items-center gap-1">
-                <User className="h-4 w-4" />
-                <span>Student/Staff</span>
-              </TabsTrigger>
-              <TabsTrigger value="admin" className="flex items-center gap-1">
-                <ShieldCheck className="h-4 w-4" />
-                <span>Admin</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
+            <LoginTabs activeTab={activeTab} onTabChange={setActiveTab}>
               <TabsContent value="client">
-                <CardContent className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="rollNumber">Roll Number</Label>
-                    <Input 
-                      id="rollNumber"
-                      placeholder="Enter your roll number"
-                      value={rollNumber}
-                      onChange={(e) => setRollNumber(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phoneNumber">Phone Number</Label>
-                    <Input 
-                      id="phoneNumber"
-                      placeholder="Enter your phone number"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      required
-                    />
-                  </div>
-                </CardContent>
+                <ClientLoginForm 
+                  rollNumber={rollNumber}
+                  setRollNumber={setRollNumber}
+                  phoneNumber={phoneNumber}
+                  setPhoneNumber={setPhoneNumber}
+                />
               </TabsContent>
               
               <TabsContent value="admin">
-                <CardContent className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="adminUsername">Username</Label>
-                    <Input 
-                      id="adminUsername"
-                      placeholder="Enter username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="adminPassword">Password</Label>
-                    <Input 
-                      id="adminPassword"
-                      type="password"
-                      placeholder="Enter password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="text-center text-sm text-muted-foreground">
-                    <p>For demo: Use "admin" for both username and password</p>
-                  </div>
-                </CardContent>
+                <AdminLoginForm 
+                  username={username}
+                  setUsername={setUsername}
+                  password={password}
+                  setPassword={setPassword}
+                />
               </TabsContent>
               
               {error && (
@@ -167,13 +114,10 @@ const Login: React.FC = () => {
                   {loading ? 'Logging in...' : 'Login'}
                 </Button>
               </CardFooter>
-            </form>
-          </Tabs>
+            </LoginTabs>
+          </form>
           
-          {/* Demo instructions */}
-          <div className="p-4 pt-0 text-center text-sm text-muted-foreground">
-            <p>For student demo: Use any roll number and phone</p>
-          </div>
+          <DemoInstructions />
         </Card>
       </div>
     </div>

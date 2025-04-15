@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
@@ -24,6 +23,8 @@ const Profile: React.FC = () => {
     logout();
     navigate('/login');
   };
+  
+  const isAdmin = user.role === 'admin';
   
   return (
     <div className="min-h-screen bg-background">
@@ -187,7 +188,7 @@ const Profile: React.FC = () => {
                       </>
                     )}
                     
-                    {user.role === 'admin' && (
+                    {isAdmin && (
                       <>
                         <p className="flex items-start gap-2">
                           <span className="text-green-600">✓</span>
