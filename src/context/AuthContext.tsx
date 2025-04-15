@@ -68,18 +68,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: 'admin',
           phoneNumber: '0000000000'
         };
-      } else if (role === 'cafeteria') {
-        // Validate cafeteria staff credentials (username & password)
-        if (!credentials.username || !credentials.password) {
-          throw new Error('Username and password are required');
-        }
-        
-        loggedInUser = {
-          id: `cafeteria-${Math.random().toString(36).substring(2, 9)}`,
-          name: 'Cafeteria Staff',
-          role: 'cafeteria',
-          phoneNumber: '0000000000'
-        };
       } else {
         throw new Error('Invalid role');
       }

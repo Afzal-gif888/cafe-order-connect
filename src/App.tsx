@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,7 +9,6 @@ import { CafeProvider } from "./context/CafeContext";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import ClientDashboard from "./pages/ClientDashboard";
-import CafeteriaDashboard from "./pages/CafeteriaDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
@@ -65,8 +65,6 @@ const DashboardRouter = () => {
   switch (user.role) {
     case 'client':
       return <ClientDashboard />;
-    case 'cafeteria':
-      return <CafeteriaDashboard />;
     case 'admin':
       return <AdminDashboard />;
     default:

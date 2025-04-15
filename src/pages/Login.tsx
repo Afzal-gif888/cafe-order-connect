@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserRole } from '@/types';
-import { Coffee, User, ShieldCheck } from 'lucide-react';
+import { User, ShieldCheck } from 'lucide-react';
 
 const Login: React.FC = () => {
   const { login, loading } = useAuth();
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
   const [rollNumber, setRollNumber] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   
-  // Admin/Cafeteria credentials
+  // Admin credentials
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   
@@ -87,14 +87,10 @@ const Login: React.FC = () => {
           </CardHeader>
           
           <Tabs defaultValue="client" onValueChange={(value) => setActiveTab(value as UserRole)}>
-            <TabsList className="grid grid-cols-3 w-full">
+            <TabsList className="grid grid-cols-2 w-full">
               <TabsTrigger value="client" className="flex items-center gap-1">
                 <User className="h-4 w-4" />
                 <span>Student/Staff</span>
-              </TabsTrigger>
-              <TabsTrigger value="cafeteria" className="flex items-center gap-1">
-                <Coffee className="h-4 w-4" />
-                <span>Cafeteria</span>
               </TabsTrigger>
               <TabsTrigger value="admin" className="flex items-center gap-1">
                 <ShieldCheck className="h-4 w-4" />
@@ -125,37 +121,6 @@ const Login: React.FC = () => {
                       onChange={(e) => setPhoneNumber(e.target.value)}
                       required
                     />
-                  </div>
-                </CardContent>
-              </TabsContent>
-              
-              <TabsContent value="cafeteria">
-                <CardContent className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="cafeteriaUsername">Username</Label>
-                    <Input 
-                      id="cafeteriaUsername"
-                      placeholder="Enter username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="cafeteriaPassword">Password</Label>
-                    <Input 
-                      id="cafeteriaPassword"
-                      type="password"
-                      placeholder="Enter password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="text-center text-sm text-muted-foreground">
-                    <p>For demo: Use "cafe" for both username and password</p>
                   </div>
                 </CardContent>
               </TabsContent>
