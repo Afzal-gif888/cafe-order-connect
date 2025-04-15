@@ -1,52 +1,97 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
-import { useCafe } from '@/context/CafeContext';
+import { toast } from '@/hooks/use-toast';
+import { ArrowLeft, User, Lock, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, ClipboardList, LogOut } from 'lucide-react';
+
+const ProfileFormSchema = z.object({
+  name: z.string().min(2, {
+    message: 'Name must be at least 2 characters.',
+  }),
+  rollNumber: z.string().optional(),
+  phone: z.string().optional(),
+});
 
 const Profile: React.FC = () => {
-  const { user, logout } = useAuth();
-  const { getUserOrders } = useCafe();
+  const { user, updateUser, logout } = useAuth();
   const navigate = useNavigate();
-  
-  if (!user) {
-    return <div>Loading...</div>;
-  }
-  
-  const userOrders = getUserOrders();
-  const completedOrders = userOrders.filter(order => order.status === 'completed').length;
-  
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const form = useForm<z.infer<typeof ProfileFormSchema>>({
+    resolver: zodResolver(ProfileFormSchema),
+    defaultValues: {
+      name: user?.name || '',
+      rollNumber: user?.rollNumber || '',
+      phone: user?.phone || '',
+    },
+    mode: 'onChange',
+  });
+
+  const onSubmit = async (values: z.infer<typeof ProfileFormSchema>) => {
+    setIsUpdating(true);
+    try {
+      await updateUser(values);
+      toast({
+        title: 'Profile updated successfully!',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error updating profile',
+        description: 'Failed to update profile. Please try again.',
+      });
+    } finally {
+      setIsUpdating(false);
+    }
   };
-  
-  const isAdmin = user.role === 'admin';
-  
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+      toast({
+        title: 'Logged out successfully!',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error logging out',
+        description: 'Failed to log out. Please try again.',
+      });
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Loading...</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Please wait, fetching user data.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
-      <main className="container mx-auto p-4 py-6">
-        <Button 
-          variant="ghost" 
-          className="mb-4"
-          onClick={() => navigate('/')}
-        >
+      <div className="container mx-auto p-4 py-6">
+        <Button variant="ghost" className="mb-4" onClick={() => navigate('/')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Your Profile</h1>
-          <p className="text-muted-foreground">
-            View and manage your account information
-          </p>
-        </div>
-        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2">
             <Card>
@@ -55,166 +100,91 @@ const Profile: React.FC = () => {
                   <User className="h-5 w-5 mr-2" />
                   Profile Information
                 </CardTitle>
-                <CardDescription>
-                  Your personal and account details
-                </CardDescription>
               </CardHeader>
-              
-              <CardContent className="space-y-6">
-                <div className="bg-muted p-4 rounded-lg">
-                  <h3 className="font-medium mb-2">Personal Information</h3>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Name</p>
-                      <p className="font-medium">{user.name}</p>
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm text-muted-foreground">Phone Number</p>
-                      <p className="font-medium">{user.phoneNumber}</p>
-                    </div>
-                    
-                    {user.rollNumber && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">Roll Number</p>
-                        <p className="font-medium">{user.rollNumber}</p>
-                      </div>
+              <CardContent>
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Your Name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {user.role === 'client' && (
+                      <>
+                        <FormField
+                          control={form.control}
+                          name="rollNumber"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Roll Number</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Your Roll Number" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="phone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Phone Number</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Your Phone Number" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </>
                     )}
-                    
-                    <div>
-                      <p className="text-sm text-muted-foreground">Role</p>
-                      <p className="font-medium capitalize">{user.role}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="bg-primary/5 border-primary/20">
-                    <CardContent className="p-4 text-center">
-                      <p className="text-4xl font-bold">{userOrders.length}</p>
-                      <p className="text-sm text-muted-foreground">Total Orders</p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-primary/5 border-primary/20">
-                    <CardContent className="p-4 text-center">
-                      <p className="text-4xl font-bold">{completedOrders}</p>
-                      <p className="text-sm text-muted-foreground">Completed Orders</p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-primary/5 border-primary/20">
-                    <CardContent className="p-4 text-center">
-                      <p className="text-4xl font-bold">
-                        {userOrders.length > 0 
-                          ? `₹${userOrders.reduce((total, order) => total + order.totalAmount, 0)}`
-                          : '₹0'
-                        }
-                      </p>
-                      <p className="text-sm text-muted-foreground">Total Spent</p>
-                    </CardContent>
-                  </Card>
-                </div>
+                    <Button type="submit" disabled={isUpdating}>
+                      {isUpdating ? (
+                        <>
+                          Updating <span className="animate-spin ml-2">🔄</span>
+                        </>
+                      ) : (
+                        'Update Profile'
+                      )}
+                    </Button>
+                  </form>
+                </Form>
               </CardContent>
-              
-              <CardFooter className="flex justify-between border-t pt-4">
-                <Button 
-                  variant="outline"
-                  onClick={() => navigate('/orders')}
-                  className="flex items-center gap-2"
-                >
-                  <ClipboardList className="h-4 w-4" />
-                  <span>View Orders</span>
-                </Button>
-                
-                <Button 
-                  variant="destructive"
-                  onClick={handleLogout}
-                  className="flex items-center gap-2"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
-                </Button>
-              </CardFooter>
             </Card>
           </div>
-          
           <div>
             <Card>
               <CardHeader>
-                <CardTitle>Account Settings</CardTitle>
-                <CardDescription>
-                  Manage your account preferences
-                </CardDescription>
+                <CardTitle className="flex items-center">
+                  <Lock className="h-5 w-5 mr-2" />
+                  Account Settings
+                </CardTitle>
               </CardHeader>
-              
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium">Role Permissions</h3>
-                  
-                  <div className="text-sm text-muted-foreground space-y-2">
-                    {user.role === 'client' && (
-                      <>
-                        <p className="flex items-start gap-2">
-                          <span className="text-green-600">✓</span>
-                          <span>Place and manage orders</span>
-                        </p>
-                        <p className="flex items-start gap-2">
-                          <span className="text-green-600">✓</span>
-                          <span>View order history</span>
-                        </p>
-                        <p className="flex items-start gap-2">
-                          <span className="text-green-600">✓</span>
-                          <span>Receive order notifications</span>
-                        </p>
-                      </>
-                    )}
-                    
-                    {user.role === 'cafeteria' && (
-                      <>
-                        <p className="flex items-start gap-2">
-                          <span className="text-green-600">✓</span>
-                          <span>Receive and manage orders</span>
-                        </p>
-                        <p className="flex items-start gap-2">
-                          <span className="text-green-600">✓</span>
-                          <span>Update order status</span>
-                        </p>
-                        <p className="flex items-start gap-2">
-                          <span className="text-green-600">✓</span>
-                          <span>View order analytics</span>
-                        </p>
-                      </>
-                    )}
-                    
-                    {isAdmin && (
-                      <>
-                        <p className="flex items-start gap-2">
-                          <span className="text-green-600">✓</span>
-                          <span>Full system access</span>
-                        </p>
-                        <p className="flex items-start gap-2">
-                          <span className="text-green-600">✓</span>
-                          <span>Manage menu items</span>
-                        </p>
-                        <p className="flex items-start gap-2">
-                          <span className="text-green-600">✓</span>
-                          <span>View all orders and analytics</span>
-                        </p>
-                        <p className="flex items-start gap-2">
-                          <span className="text-green-600">✓</span>
-                          <span>Manage cafeteria staff</span>
-                        </p>
-                      </>
-                    )}
-                  </div>
+                <div>
+                  <h3 className="text-sm font-medium mb-2">Logout</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Sign out of your account.
+                  </p>
+                  <Button variant="destructive" onClick={handleLogout}>
+                    Logout
+                    <LogOut className="h-4 w-4 ml-2" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

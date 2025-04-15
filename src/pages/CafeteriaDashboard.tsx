@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
-import { OrderCard } from '@/components/OrderCard';
+import OrderCard from '@/components/OrderCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCafe } from '@/context/CafeContext';
 import { Order } from '@/types';
